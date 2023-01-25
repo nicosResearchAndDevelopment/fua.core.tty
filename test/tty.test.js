@@ -1,12 +1,12 @@
 const
     expect = require('expect'),
     {describe, test} = require('mocha'),
-    log = require('../src/log.js');
+    tty = require('../src/tty.js');
 
-describe('fua.core.log', function () {
+describe('fua.core.tty', function () {
 
     test.only('develop', function () {
-        console.log(log);
+        console.log(tty);
     });
 
 });

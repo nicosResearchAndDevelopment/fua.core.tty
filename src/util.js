@@ -1,4 +1,6 @@
-exports.sealModule = function sealModule(target) {
+const util = exports;
+
+util.sealModule = function sealModule(target) {
     Object.freeze(target);
     for (const child of Object.values(target)) {
         if (child instanceof Object) sealModule(child);
