@@ -1,35 +1,73 @@
 const
-    expect = require('expect'),
     {describe, test} = require('mocha'),
-    tty = require('../src/tty.js');
+    expect           = require('expect'),
+    util             = require('../src/core.util.js');
 
-describe('fua.core.tty', function () {
+describe('core.util.logger', function () {
 
-    test.skip('develop', function () {
-        console.log(tty.colors.enabled);
-
-        // console.log(process.stdout.isTTY);
-        // console.log(process.stdout.getColorDepth());
+    test('logObject', function () {
+        util.logObject('Hello World!');
+        util.logObject({
+            test:   'Hello World!',
+            answer: 42,
+            true:   true
+        });
     });
 
-    describe('log.table', function () {
+    test('logTodo', function () {
+        util.logTodo('Hello World!');
+        // console.log(new Error('test'));
+        util.logTodo('Lorem Ipsum');
+    });
+
+    test('logRequest/logResponse', async function () {
+        const
+            http   = require('http'),
+            server = http.createServer(function (request, response) {
+                util.logRequest(request);
+                response.write('Hello World!');
+                response.end();
+            }),
+            PORT   = 9090;
+
+        await new Promise((resolve) => {
+            server.listen(PORT, function () {
+                const request = http.request({
+                    hostname: 'localhost',
+                    port:     PORT,
+                    path:     '/test',
+                    method:   'POST'
+                }, function (response) {
+                    util.logResponse(response);
+                    resolve();
+                });
+                request.write('Lorem Ipsum');
+                request.end();
+            });
+        });
+
+        await new Promise(resolve => server.close(resolve));
+
+    });
+
+    describe('logTable', function () {
 
         test('rows: array of arrays, columns: null', function () {
             const columns = null;
-            const rows = [
+            const rows    = [
                 ['Hello', 'World'],
                 ['Lorem', 'Ipsum']
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: array of arrays, columns: array', function () {
             const columns = ['First Name', 'Last Name'];
-            const rows = [
+            const rows    = [
                 ['Simon', 'Petrac'],
                 ['Jörg', 'Langkau']
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: array of arrays, columns: object', function () {
@@ -38,61 +76,61 @@ describe('fua.core.tty', function () {
                 1: 'lastName',
                 _: 'index'
             };
-            const rows = [
+            const rows    = [
                 ['Simon', 'Petrac'],
                 ['Jörg', 'Langkau']
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: array of objects, columns: null', function () {
             const columns = null;
-            const rows = [
+            const rows    = [
                 {first: 'Test', 2: 'Test'},
                 {first: 'Hello', last: 'World'},
                 {first: 'Lorem', last: 'Ipsum'}
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: array of objects, columns: array', function () {
             const columns = ['First Name', 'Last Name'];
-            const rows = [
+            const rows    = [
                 {0: 'Hello', 1: 'World'},
                 {0: 'Lorem', 1: 'Ipsum', 2: 'Test'}
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: array of objects, columns: object', function () {
             const columns = {
-                _: 'Key',
+                _:    'Key',
                 test: 'Test'
             };
-            const rows = [
+            const rows    = [
                 {test: 'Hello', test2: 'World'},
                 {test: 'Simon'},
                 {test: 'Jörg'}
             ];
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of arrays, columns: null', function () {
             const columns = null;
-            const rows = {
-                first: ['Hello', 'World'],
+            const rows    = {
+                first:  ['Hello', 'World'],
                 second: ['Lorem', 'Ipsum']
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of arrays, columns: array', function () {
             const columns = ['First Name', 'Second Name'];
-            const rows = {
-                first: ['Simon', 'Petrac'],
+            const rows    = {
+                first:  ['Simon', 'Petrac'],
                 second: ['Jörg', 'Langkau']
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of arrays, columns: object', function () {
@@ -100,43 +138,43 @@ describe('fua.core.tty', function () {
                 _: 'POS',
                 1: 'NAME'
             };
-            const rows = {
-                first: ['Simon', 'Petrac'],
+            const rows    = {
+                first:  ['Simon', 'Petrac'],
                 second: ['Jörg', 'Langkau']
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of objects, columns: null', function () {
             const columns = null;
-            const rows = {
-                first: {firstName: 'Simon', lastName: 'Petrac'},
+            const rows    = {
+                first:  {firstName: 'Simon', lastName: 'Petrac'},
                 second: {firstName: 'Jörg', lastName: 'Langkau'}
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of objects, columns: array', function () {
             const columns = ['lastName'];
-            const rows = {
-                first: {1: 'Simon', 0: 'Petrac'},
+            const rows    = {
+                first:  {1: 'Simon', 0: 'Petrac'},
                 second: {1: 'Jörg', 0: 'Langkau'}
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
         test('rows: object of objects, columns: object', function () {
             const columns = {
-                _: 'Key',
+                _:         'Key',
                 firstName: 'First Name',
-                lastName: 'Last Name',
-                test: '[Empty]'
+                lastName:  'Last Name',
+                test:      '[Empty]'
             };
-            const rows = {
-                first: {firstName: 'Simon', lastName: 'Petrac'},
+            const rows    = {
+                first:  {firstName: 'Simon', lastName: 'Petrac'},
                 second: {firstName: 'Jörg', lastName: 'Langkau'}
             };
-            tty.log.table(rows, columns, this.test.title);
+            util.logTable(rows, columns);
         });
 
     });
