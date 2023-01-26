@@ -22,37 +22,21 @@ const {formatWithOptions, inspect} = require('util');
 
     // tty.log.todo();
 
-    // tty.output(tty.colors.depth);
-    // const step = 32;
-    // for (let red = 0; red < 256; red += step) {
-    //     for (let green = 0; green < 256; green += step) {
-    //         for (let blue = 0; blue < 256; blue += step) {
-    //             const text = `(${red}, ${green}, ${blue})`;
-    //             tty.output(
-    //                 tty.colors.rgb.background(
-    //                     tty.colors.rgb(
-    //                         text,
-    //                         256 - red, 256 - green, 256 - blue
-    //                     ),
-    //                     red, green, blue
-    //                 )
-    //             );
-    //         }
-    //     }
-    // }
-    //
-    // const grey_step = 4;
-    // for (let grey = 0; grey < 256; grey += grey_step) {
-    //     const text = `(${grey}, ${grey}, ${grey})`;
-    //     tty.output(
-    //         tty.colors.rgb.background(
-    //             tty.colors.rgb(
-    //                 text,
-    //                 256 - grey, 256 - grey, 256 - grey
-    //             ),
-    //             grey, grey, grey
-    //         )
-    //     );
-    // }
+    tty.output('colors = ' + tty.colors.depth);
+    const step = 32;
+    for (let red = 0; red < 256; red += step) {
+        for (let green = 0; green < 256; green += step) {
+            for (let blue = 0; blue < 256; blue += step) {
+                const text = `(${red}, ${green}, ${blue})`;
+                tty.output(tty.colors.rgb(red, green, blue, text));
+            }
+        }
+    }
+
+    const grey_step = 4;
+    for (let grey = 0; grey < 256; grey += grey_step) {
+        const text = `(${grey}, ${grey}, ${grey})`;
+        tty.output(tty.colors.rgb(grey, grey, grey, text));
+    }
 
 })().catch(console.error);

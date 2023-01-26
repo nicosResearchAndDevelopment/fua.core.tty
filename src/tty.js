@@ -4,54 +4,90 @@ const
 
 tty.colors = require('./tty.colors.js');
 
-tty.input = async function () {
+/**
+ * @param {string} [prompt]
+ * @returns {Promise<string>}
+ */
+tty.input = async function (prompt) {
+    if (prompt) process.stdout.write(prompt + ': ');
     const data = await new Promise(resolve => process.stdin.once('data', resolve));
     return data.toString().trim();
 };
 
+/**
+ * @param {any} data
+ */
 tty.output = function (data) {
     process.stdout.write(data + '\n');
 };
 
+/**
+ * @param {any} data
+ */
 tty.output.error = function (data) {
     process.stderr.write(data + '\n');
 };
 
+/**
+ * @param {any} value
+ * @returns {string}
+ */
 tty.inspect = function (value) {
     const options = {colors: tty.colors.enabled, depth: null};
     return util.formatWithOptions(options, value);
 };
 
+/**
+ * @param {any} value
+ */
 tty.log = function (value) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect(value);
     tty.output(tty.colors.grey(ts) + ' ' + text);
 };
 
+/**
+ * @param {any} value
+ */
 tty.error = function (value) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect(value);
     tty.output.error(tty.colors.grey(ts) + ' ' + tty.colors.red(text));
 };
 
+/**
+ * @param {string} [message='...']
+ */
 tty.log.text = function (message = '...') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
     tty.output(tty.colors.grey(ts) + ' ' + text);
 };
 
+/**
+ * @param {string} [message='warning']
+ */
 tty.log.warning = function (message = 'warning') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
     tty.output(tty.colors.grey(ts) + ' ' + tty.colors.yellow.bright(text));
 };
 
+/**
+ * @param {string} [message='success']
+ */
 tty.log.success = function (message = 'success') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
     tty.output(tty.colors.grey(ts) + ' ' + tty.colors.green(text));
 };
 
+/**
+ * @param {string} [message='done']
+ */
 tty.log.done = function (message = 'done') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
     tty.output(tty.colors.grey(ts) + ' ' + tty.colors.green(text));
 };
 
+/**
+ * @param {string} [message='']
+ */
 tty.log.todo = function (message = '') {
     const errTarget = {
         name: tty.colors.yellow(tty.colors.style.bold('TODO')),
@@ -65,25 +101,53 @@ tty.log.todo = function (message = '') {
     tty.output(tty.colors.grey(ts) + ' ' + text);
 };
 
-tty.log.request = function (request) {
-    let text = tty.colors.style.bold(request.method) + ' ' + tty.colors.cyan(request.url) + ' HTTP/' + request.httpVersion;
+/**
+ * @param {module:http.IncomingMessage | module:http.ClientRequest} request
+ * @returns {string}
+ */
+tty.inspect.request = function (request) {
+    let result = tty.colors.style.bold(request.method) + ' ' + tty.colors.cyan(request.url) + ' HTTP/' + request.httpVersion;
     for (let [key, value] of Object.entries(request.headers)) {
-        text += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
+        result += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
     }
-    const ts = '[' + util.currentTime() + ']';
+    return result;
+};
+
+/**
+ * @param {module:http.IncomingMessage | module:http.ClientRequest} request
+ */
+tty.log.request = function (request) {
+    const ts = '[' + util.currentTime() + ']', text = tty.inspect.request(request);
     tty.output(tty.colors.grey(ts) + ' ' + text);
 };
 
-tty.log.response = function (response) {
-    let text = 'HTTP/' + response.httpVersion + ' ' + tty.colors.style.bold(response.statusCode) + ' ' + tty.colors.style.italic(response.statusMessage);
+/**
+ * @param {module:http.IncomingMessage | module:http.ServerResponse} response
+ * @returns {string}
+ */
+tty.inspect.response = function (response) {
+    let result = 'HTTP/' + response.httpVersion + ' ' + tty.colors.style.bold(response.statusCode) + ' ' + tty.colors.style.italic(response.statusMessage);
     for (let [key, value] of Object.entries(response.headers)) {
-        text += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
+        result += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
     }
-    const ts = '[' + util.currentTime() + ']';
+    return result;
+};
+
+/**
+ * @param {module:http.IncomingMessage | module:http.ServerResponse} response
+ */
+tty.log.response = function (response) {
+    const ts = '[' + util.currentTime() + ']', text = tty.inspect.response(response);
     tty.output(tty.colors.grey(ts) + ' ' + text);
 };
 
-tty.log.table = function (rows, columns, tableName) {
+/**
+ * @param {Array<Array<unknown>> | Array<{[col: string]: unknown}> | {[row: string]: Array<unknown>} | {[row:string]: {[col: string]: unknown}}} rows
+ * @param {Array<string> | {[key: number | string]: string}} [columns]
+ * @param {string} [tableName]
+ * @returns {string}
+ */
+tty.inspect.table = function (rows, columns, tableName) {
     const
         collapseWhitespace = (text) => text.replace(/\s+/g, ' ').trim(),
         colKeys = columns ? Object.keys(columns) : [],
@@ -135,11 +199,18 @@ tty.log.table = function (rows, columns, tableName) {
     }
     resultEntries.push(tty.colors.grey('└─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┴─') + '─┘'));
 
-    const ts = '[' + util.currentTime() + ']', text = resultEntries.join('\n');
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    return resultEntries.join('\n');
 };
 
-// TODO
+/**
+ * @param {Array<Array<unknown>> | Array<{[col: string]: unknown}> | {[row: string]: Array<unknown>} | {[row:string]: {[col: string]: unknown}}} rows
+ * @param {Array<string> | {[key: number | string]: string}} [columns]
+ * @param {string} [tableName]
+ */
+tty.log.table = function (rows, columns, tableName) {
+    const ts = '[' + util.currentTime() + ']', text = tty.inspect.table(rows, columns, tableName);
+    tty.output(tty.colors.grey(ts) + ' ' + text);
+};
 
 util.sealModule(tty);
 module.exports = tty;

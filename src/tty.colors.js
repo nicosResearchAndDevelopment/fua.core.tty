@@ -65,27 +65,27 @@ colors.cyan.bright = (text) => colors.style(text, colors.SGR.FG_BRIGHT_CYAN, col
 colors.white.bright = (text) => colors.style(text, colors.SGR.FG_BRIGHT_WHITE, colors.SGR.DEFAULT_FOREGROUND_COLOR);
 
 /**
+ * @param {number} red from 0 to 255
+ * @param {number} green from 0 to 255
+ * @param {number} blue from 0 to 255
  * @param {string} text
- * @param {number} r
- * @param {number} g
- * @param {number} b
  * @returns {string}
  */
-colors.rgb = function (text, r = 0, g = 0, b = 0) {
+colors.rgb = function (red, green, blue, text) {
     if (colors.depth >= 24) {
-        return colors.style(text, colors.SGR.FG_COLOR_24(r, g, b), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        return colors.style(text, colors.SGR.FG_COLOR_24(Math.floor(red), Math.floor(green), Math.floor(blue)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else if (colors.depth >= 8) {
         //   16-231:  6 × 6 × 6 cube (216 colors): 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
         //  232-255:  grayscale from black to white in 24 steps
-        const n = (g !== r || g !== b)
-            ? 16 + 36 * Math.floor(0.0234375 * r) + 6 * Math.floor(0.0234375 * g) + Math.floor(0.0234375 * b)
-            : 232 + Math.floor(0.09375 * g);
-        return colors.style(text, colors.SGR.FG_COLOR_8(n), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        const index = (green !== red || green !== blue)
+            ? 16 + 36 * Math.floor(0.0234375 * red) + 6 * Math.floor(0.0234375 * green) + Math.floor(0.0234375 * blue)
+            : 232 + Math.floor(0.09375 * green);
+        return colors.style(text, colors.SGR.FG_COLOR_8(Math.floor(index)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else if (colors.depth >= 4) {
         //    0-  7:  standard colors (as in ESC [ 30–37 m)
         //    8- 15:  high intensity colors (as in ESC [ 90–97 m)
-        const n = Math.floor(r / 128) + 2 * Math.floor(g / 128) + 4 * Math.floor(b / 128);
-        return colors.style(text, colors.SGR.FG_COLOR_8(n), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        const index = Math.floor(red / 128) + 2 * Math.floor(green / 128) + 4 * Math.floor(blue / 128);
+        return colors.style(text, colors.SGR.FG_COLOR_8(Math.floor(index)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else {
         return text;
     }
@@ -114,27 +114,27 @@ colors.cyan.bright.background = (text) => colors.style(text, colors.SGR.BG_BRIGH
 colors.white.bright.background = (text) => colors.style(text, colors.SGR.BG_BRIGHT_WHITE, colors.SGR.DEFAULT_BACKGROUND_COLOR);
 
 /**
+ * @param {number} red from 0 to 255
+ * @param {number} green from 0 to 255
+ * @param {number} blue from 0 to 255
  * @param {string} text
- * @param {number} r
- * @param {number} g
- * @param {number} b
  * @returns {string}
  */
-colors.rgb.background = function (text, r = 0, g = 0, b = 0) {
+colors.rgb.background = function (red, green, blue, text) {
     if (colors.depth >= 24) {
-        return colors.style(text, colors.SGR.BG_COLOR_24(r, g, b), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        return colors.style(text, colors.SGR.BG_COLOR_24(Math.floor(red), Math.floor(green), Math.floor(blue)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else if (colors.depth >= 8) {
         //   16-231:  6 × 6 × 6 cube (216 colors): 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
         //  232-255:  grayscale from black to white in 24 steps
-        const n = (g !== r || g !== b)
-            ? 16 + 36 * Math.floor(0.0234375 * r) + 6 * Math.floor(0.0234375 * g) + Math.floor(0.0234375 * b)
-            : 232 + Math.floor(0.09375 * g);
-        return colors.style(text, colors.SGR.BG_COLOR_8(n), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        const index = (green !== red || green !== blue)
+            ? 16 + 36 * Math.floor(0.0234375 * red) + 6 * Math.floor(0.0234375 * green) + Math.floor(0.0234375 * blue)
+            : 232 + Math.floor(0.09375 * green);
+        return colors.style(text, colors.SGR.BG_COLOR_8(Math.floor(index)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else if (colors.depth >= 4) {
         //    0-  7:  standard colors (as in ESC [ 30–37 m)
         //    8- 15:  high intensity colors (as in ESC [ 90–97 m)
-        const n = Math.floor(r / 128) + 2 * Math.floor(g / 128) + 4 * Math.floor(b / 128);
-        return colors.style(text, colors.SGR.BG_COLOR_8(n), colors.SGR.DEFAULT_FOREGROUND_COLOR);
+        const index = Math.floor(red / 128) + 2 * Math.floor(green / 128) + 4 * Math.floor(blue / 128);
+        return colors.style(text, colors.SGR.BG_COLOR_8(Math.floor(index)), colors.SGR.DEFAULT_FOREGROUND_COLOR);
     } else {
         return text;
     }
