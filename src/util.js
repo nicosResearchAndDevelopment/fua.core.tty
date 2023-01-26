@@ -4,18 +4,18 @@ const
 
 util.formatWithOptions = formatWithOptions;
 
-util.sealModule = function sealModule(target) {
+util.sealModule = function (target) {
     Object.freeze(target);
     for (const child of Object.values(target)) {
         if (child instanceof RegExp) continue;
-        if (child instanceof Object) sealModule(child);
+        if (child instanceof Object) util.sealModule(child);
     }
 };
 
-util.currentTime = process.env.NODE_ENV === 'production' ? function prodTime() {
+util.currentTime = process.env.NODE_ENV === 'production' ? function () {
     const current = new Date();
     return current.toISOString();
-} : function localTime() {
+} : function () {
     const current = new Date();
     return current.getHours().toString().padStart(2, '0')
         + ':' + current.getMinutes().toString().padStart(2, '0')
@@ -23,6 +23,6 @@ util.currentTime = process.env.NODE_ENV === 'production' ? function prodTime() {
         + '.' + current.getMilliseconds().toString().padStart(3, '0');
 };
 
-util.offsetText = function offsetText(text, offset) {
+util.offsetText = function (text, offset) {
     return text.replace(/^/mg, ''.padStart(offset, ' '));
 };
