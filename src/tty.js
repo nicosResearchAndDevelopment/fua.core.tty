@@ -5,30 +5,83 @@ const
 tty.colors = require('./tty.colors.js');
 
 /**
+ * @param {BufferEncoding} [encoding='utf8']
+ * @returns {Promise<string>}
+ */
+tty.read = (encoding = 'utf8') => new Promise((resolve, reject) => {
+    /** @param {string | Buffer} data */
+    const callback = (data) => resolve(Buffer.isBuffer(data) ? data.toString(encoding) : data);
+    process.stdin.once('data', callback);
+});
+
+/**
+ * @param {string | Buffer} data
+ * @param {BufferEncoding} [encoding='utf8']
+ * @returns {Promise<void>}
+ */
+tty.write = (data, encoding = 'utf8') => new Promise((resolve, reject) => {
+    const callback = (err) => err ? reject(err) : resolve();
+    process.stdout.write(data, encoding, callback);
+});
+
+/**
+ * @param {string | Buffer} data
+ * @param {BufferEncoding} [encoding='utf8']
+ * @returns {Promise<void>}
+ */
+tty.write.error = (data, encoding = 'utf8') => new Promise((resolve, reject) => {
+    const callback = (err) => err ? reject(err) : resolve();
+    process.stderr.write(data, encoding, callback);
+});
+
+/**
  * @param {string} [prompt]
  * @returns {Promise<string>}
  */
 tty.input = async function (prompt) {
-    if (prompt) process.stdout.write(prompt + ': ');
-    const data = await new Promise(resolve => process.stdin.once('data', resolve));
-    return data.toString().trim();
+    if (prompt) await tty.write(prompt + ': ');
+    const data = await tty.read();
+    return data.trim();
 };
 
 /**
  * @param {any} data
  */
 tty.output = function (data) {
-    process.stdout.write(data + '\n');
+    tty.write(data + '\n').catch(console.error);
 };
 
 /**
  * @param {any} data
  */
 tty.output.error = function (data) {
-    process.stderr.write(data + '\n');
+    tty.write.error(data + '\n').catch(console.error);
 };
 
-// IDEA tty.interact like https://docs.python.org/3/library/code.html
+/**
+ * @param {{[key: string]: any}} [locals={}]
+ * @param {boolean} [banners=true]
+ * @returns {Promise<void>}
+ * @see https://docs.python.org/3/library/code.html
+ */
+tty.interact = async function (locals = {}, banners = true) {
+    if (process.env.NODE_ENV === 'production') return;
+    if (banners) tty.output('Interactive console attached.');
+    let running = true;
+    const args = [...Object.keys(locals), 'print', 'exit'];
+    const values = [...Object.values(locals), tty.output, () => running = false];
+    while (running) {
+        const script = await tty.input('$');
+        try {
+            const runner = new Function(...args, 'return ' + script);
+            const result = await runner.apply(null, values);
+            if (typeof result !== 'undefined') tty.output(result);
+        } catch (err) {
+            tty.output.error(err);
+        }
+    }
+    if (banners) tty.output('Interactive console disconnected.');
+};
 
 /**
  * @param {any} value
