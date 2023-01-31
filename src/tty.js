@@ -28,6 +28,8 @@ tty.output.error = function (data) {
     process.stderr.write(data + '\n');
 };
 
+// IDEA tty.interact like https://docs.python.org/3/library/code.html
+
 /**
  * @param {any} value
  * @returns {string}

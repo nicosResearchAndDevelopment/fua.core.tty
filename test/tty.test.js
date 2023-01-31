@@ -12,6 +12,78 @@ describe('fua.core.tty', function () {
         // console.log(process.stdout.getColorDepth());
     });
 
+    test('log', function () {
+        tty.log('Hello World!');
+        tty.log({
+            test: 'Hello World!',
+            answer: 42,
+            true: true
+        });
+    });
+
+    test('error', function () {
+        tty.error({test: 'Hello World!'});
+        tty.error(new Error('Hello World!'));
+    });
+
+    describe('colors', function () {
+
+        test.skip('develop', function () {
+            tty.output('colors = ' + tty.colors.depth);
+            const step = 32;
+            for (let red = 0; red < 256; red += step) {
+                for (let green = 0; green < 256; green += step) {
+                    for (let blue = 0; blue < 256; blue += step) {
+                        const text = `(${red}, ${green}, ${blue})`;
+                        tty.output(tty.colors.rgb(red, green, blue, text));
+                    }
+                }
+            }
+
+            const grey_step = 4;
+            for (let grey = 0; grey < 256; grey += grey_step) {
+                const text = `(${grey}, ${grey}, ${grey})`;
+                tty.output(tty.colors.rgb(grey, grey, grey, text));
+            }
+        });
+
+    });
+
+    test('log.todo', function () {
+        tty.log.todo('Hello World!');
+        // console.log(new Error('test'));
+        tty.log.todo('Lorem Ipsum');
+    });
+
+    test('log.request/response', async function () {
+        const
+            http = require('http'),
+            server = http.createServer(function (request, response) {
+                tty.log.request(request);
+                response.write('Hello World!');
+                response.end();
+            }),
+            PORT = 9090;
+
+        await new Promise((resolve) => {
+            server.listen(PORT, function () {
+                const request = http.request({
+                    hostname: 'localhost',
+                    port: PORT,
+                    path: '/test',
+                    method: 'POST'
+                }, function (response) {
+                    tty.log.response(response);
+                    resolve();
+                });
+                request.write('Lorem Ipsum');
+                request.end();
+            });
+        });
+
+        await new Promise(resolve => server.close(resolve));
+    });
+
     describe('log.table', function () {
 
         test('rows: array of arrays, columns: null', function () {

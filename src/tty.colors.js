@@ -31,6 +31,7 @@ colors.inverse = (text) => colors.style(text, colors.SGR.REVERSE_VIDEO, colors.S
  * @returns {string}
  */
 colors.style = function (text, OPEN, CLOSE) {
+    text = '' + text;
     if (!colors.enabled || !text || !OPEN || !CLOSE) return text;
     return OPEN + text.split(CLOSE).join(CLOSE + OPEN) + CLOSE;
 };
