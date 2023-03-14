@@ -2,7 +2,7 @@ const
     util = exports,
     {formatWithOptions} = require('util');
 
-util.formatWithOptions = formatWithOptions;
+util.inspectWithOptions = (value, options = {}) => formatWithOptions(options, value);
 
 util.sealModule = function (target) {
     Object.freeze(target);

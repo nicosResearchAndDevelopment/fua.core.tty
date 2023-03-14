@@ -89,7 +89,7 @@ tty.interact = async function (locals = {}, banners = true) {
  */
 tty.inspect = function (value) {
     const options = {colors: tty.colors.enabled, depth: null};
-    return util.formatWithOptions(options, value);
+    return util.inspectWithOptions(value, options);
 };
 
 /**
