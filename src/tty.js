@@ -4,7 +4,7 @@ const
 
 tty.ESC = require('./tty.ESC.js');
 tty.SGR = require('./tty.SGR.js');
-tty.CPR = require('./tty.SGR.js');
+tty.CPR = require('./tty.CPR.js');
 
 tty.color  = require('./tty.color.js');
 tty.style  = require('./tty.style.js');
