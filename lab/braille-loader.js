@@ -1,6 +1,8 @@
-const async       = require('@nrd/fua.core.async');
-const ts          = require('@nrd/fua.core.ts');
-const ProgressBar = require('./ProgressBar.js');
+const
+    async       = require('@nrd/fua.core.async'),
+    ts          = require('@nrd/fua.core.ts'),
+    ProgressBar = require('./ProgressBar.js'),
+    cursor      = require('../src/tty.cursor.js');
 
 // IDEA a progress bar like in docker: [⣿⣿⣿⣿⣿⣿⣿] (the dots are bold and green)
 // SEE https://en.wikipedia.org/wiki/Braille_Patterns#Block
@@ -14,9 +16,11 @@ async.iife(async function main() {
         chars: ProgressBar.D8
     });
 
+    cursor(false);
     for (let i = progress.value; i <= progress.total; i++) {
         progress.update(i);
         await ts.pause(0);
     }
+    cursor(true);
 
 });

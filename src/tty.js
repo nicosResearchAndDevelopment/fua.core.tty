@@ -1,8 +1,14 @@
 const
     util = require('./util.js'),
-    tty = {};
+    tty  = {};
 
-tty.colors = require('./tty.colors.js');
+tty.ESC = require('./tty.ESC.js');
+tty.SGR = require('./tty.SGR.js');
+tty.CPR = require('./tty.SGR.js');
+
+tty.color  = require('./tty.color.js');
+tty.style  = require('./tty.style.js');
+tty.cursor = require('./tty.cursor.js');
 
 /**
  * @param {BufferEncoding} [encoding='utf8']
@@ -67,8 +73,8 @@ tty.output.error = function (data) {
 tty.interact = async function (locals = {}, banners = true) {
     if (process.env.NODE_ENV === 'production') return;
     if (banners) tty.output('Interactive console attached.');
-    let running = true;
-    const args = [...Object.keys(locals), 'print', 'exit'];
+    let running  = true;
+    const args   = [...Object.keys(locals), 'print', 'exit'];
     const values = [...Object.values(locals), tty.output, () => running = false];
     while (running) {
         const script = await tty.input('$');
@@ -88,7 +94,7 @@ tty.interact = async function (locals = {}, banners = true) {
  * @returns {string}
  */
 tty.inspect = function (value) {
-    const options = {colors: tty.colors.enabled, depth: null};
+    const options = {colors: tty.color.enabled, depth: null};
     return util.inspectWithOptions(value, options);
 };
 
@@ -97,7 +103,7 @@ tty.inspect = function (value) {
  */
 tty.log = function (value) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect(value);
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 /**
@@ -105,7 +111,7 @@ tty.log = function (value) {
  */
 tty.error = function (value) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect(value);
-    tty.output.error(tty.colors.grey(ts) + ' ' + tty.colors.red(text));
+    tty.output.error(tty.color.grey(ts) + ' ' + tty.color.red(text));
 };
 
 /**
@@ -113,7 +119,7 @@ tty.error = function (value) {
  */
 tty.log.text = function (message = '...') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 /**
@@ -121,7 +127,7 @@ tty.log.text = function (message = '...') {
  */
 tty.log.warning = function (message = 'warning') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
-    tty.output(tty.colors.grey(ts) + ' ' + tty.colors.yellow.bright(text));
+    tty.output(tty.color.grey(ts) + ' ' + tty.color.yellow.bright(text));
 };
 
 /**
@@ -129,7 +135,7 @@ tty.log.warning = function (message = 'warning') {
  */
 tty.log.success = function (message = 'success') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
-    tty.output(tty.colors.grey(ts) + ' ' + tty.colors.green(text));
+    tty.output(tty.color.grey(ts) + ' ' + tty.color.green(text));
 };
 
 /**
@@ -137,23 +143,23 @@ tty.log.success = function (message = 'success') {
  */
 tty.log.done = function (message = 'done') {
     const ts = '[' + util.currentTime() + ']', text = '' + message;
-    tty.output(tty.colors.grey(ts) + ' ' + tty.colors.green(text));
+    tty.output(tty.color.grey(ts) + ' ' + tty.color.green(text));
 };
 
 /**
  * @param {string} [message='']
  */
 tty.log.todo = function (message = '') {
-    const errTarget = {
-        name: tty.colors.yellow(tty.colors.style.bold('TODO')),
+    const errTarget       = {
+        name:    tty.color.yellow(tty.style.bold('TODO')),
         message: message.trim().replace(/\s+/g, ' ')
     };
     const stackTraceLimit = Error.stackTraceLimit;
     Error.stackTraceLimit = 1;
     Error.captureStackTrace(errTarget, tty.log.todo);
     Error.stackTraceLimit = stackTraceLimit;
-    const ts = '[' + util.currentTime() + ']', text = errTarget.stack;
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    const ts              = '[' + util.currentTime() + ']', text = errTarget.stack;
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 /**
@@ -161,9 +167,9 @@ tty.log.todo = function (message = '') {
  * @returns {string}
  */
 tty.inspect.request = function (request) {
-    let result = tty.colors.style.bold(request.method) + ' ' + tty.colors.cyan(request.url) + ' HTTP/' + request.httpVersion;
+    let result = tty.style.bold(request.method) + ' ' + tty.color.cyan(request.url) + ' HTTP/' + request.httpVersion;
     for (let [key, value] of Object.entries(request.headers)) {
-        result += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
+        result += '\n  ' + tty.color.magenta(key) + ': ' + tty.color.green(value);
     }
     return result;
 };
@@ -173,7 +179,7 @@ tty.inspect.request = function (request) {
  */
 tty.log.request = function (request) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect.request(request);
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 /**
@@ -181,9 +187,9 @@ tty.log.request = function (request) {
  * @returns {string}
  */
 tty.inspect.response = function (response) {
-    let result = 'HTTP/' + response.httpVersion + ' ' + tty.colors.style.bold(response.statusCode) + ' ' + tty.colors.style.italic(response.statusMessage);
+    let result = 'HTTP/' + response.httpVersion + ' ' + tty.style.bold(response.statusCode) + ' ' + tty.style.italic(response.statusMessage);
     for (let [key, value] of Object.entries(response.headers)) {
-        result += '\n  ' + tty.colors.magenta(key) + ': ' + tty.colors.green(value);
+        result += '\n  ' + tty.color.magenta(key) + ': ' + tty.color.green(value);
     }
     return result;
 };
@@ -193,7 +199,7 @@ tty.inspect.response = function (response) {
  */
 tty.log.response = function (response) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect.response(response);
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 /**
@@ -205,13 +211,13 @@ tty.log.response = function (response) {
 tty.inspect.table = function (rows, columns, tableName) {
     const
         collapseWhitespace = (text) => text.replace(/\s+/g, ' ').trim(),
-        colKeys = columns ? Object.keys(columns) : [],
-        colTitles = columns ? Object.values(columns).map(collapseWhitespace) : [],
-        colSizes = columns ? colTitles.map(title => Math.max(3, title.length)) : [],
+        colKeys            = columns ? Object.keys(columns) : [],
+        colTitles          = columns ? Object.values(columns).map(collapseWhitespace) : [],
+        colSizes           = columns ? colTitles.map(title => Math.max(3, title.length)) : [],
         // padValues          = (value, index) => value.padEnd(colSizes[index], ' '),
-        padValues = (value, index) => value.padStart((colSizes[index] + value.length) / 2, ' ').padEnd(colSizes[index], ' '),
-        rowEntries = [],
-        resultEntries = [];
+        padValues          = (value, index) => value.padStart((colSizes[index] + value.length) / 2, ' ').padEnd(colSizes[index], ' '),
+        rowEntries         = [],
+        resultEntries      = [];
 
     if (!columns) {
         const keySet = new Set();
@@ -245,14 +251,14 @@ tty.inspect.table = function (rows, columns, tableName) {
         }
     }
 
-    resultEntries.push((tableName ? tty.colors.yellow(tableName) + ' ' : '') + tty.colors.grey(`(${colTitles.length} columns, ${rowEntries.length} rows)`));
-    resultEntries.push(tty.colors.grey('┌─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┬─') + '─┐'));
-    resultEntries.push(tty.colors.grey('| ') + colTitles.map(padValues).map(tty.colors.style.bold).join(tty.colors.grey(' | ')) + tty.colors.grey(' |'));
-    resultEntries.push(tty.colors.grey('├─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┼─') + '─┤'));
+    resultEntries.push((tableName ? tty.color.yellow(tableName) + ' ' : '') + tty.color.grey(`(${colTitles.length} columns, ${rowEntries.length} rows)`));
+    resultEntries.push(tty.color.grey('┌─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┬─') + '─┐'));
+    resultEntries.push(tty.color.grey('| ') + colTitles.map(padValues).map(tty.style.bold).join(tty.color.grey(' | ')) + tty.color.grey(' |'));
+    resultEntries.push(tty.color.grey('├─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┼─') + '─┤'));
     for (let entry of rowEntries) {
-        resultEntries.push(tty.colors.grey('| ') + entry.map(padValues).join(tty.colors.grey(' | ')) + tty.colors.grey(' |'));
+        resultEntries.push(tty.color.grey('| ') + entry.map(padValues).join(tty.color.grey(' | ')) + tty.color.grey(' |'));
     }
-    resultEntries.push(tty.colors.grey('└─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┴─') + '─┘'));
+    resultEntries.push(tty.color.grey('└─' + colSizes.map(size => ''.padEnd(size, '─')).join('─┴─') + '─┘'));
 
     return resultEntries.join('\n');
 };
@@ -264,7 +270,7 @@ tty.inspect.table = function (rows, columns, tableName) {
  */
 tty.log.table = function (rows, columns, tableName) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect.table(rows, columns, tableName);
-    tty.output(tty.colors.grey(ts) + ' ' + text);
+    tty.output(tty.color.grey(ts) + ' ' + text);
 };
 
 util.sealModule(tty);

@@ -1,12 +1,12 @@
 const
-    expect = require('expect'),
+    expect           = require('expect'),
     {describe, test} = require('mocha'),
-    tty = require('../src/tty.js');
+    tty              = require('../src/tty.js');
 
 describe('fua.core.tty', function () {
 
     test.skip('develop', function () {
-        console.log(tty.colors.enabled);
+        console.log(tty.color.enabled);
 
         // console.log(process.stdout.isTTY);
         // console.log(process.stdout.getColorDepth());
@@ -15,9 +15,9 @@ describe('fua.core.tty', function () {
     test('log', function () {
         tty.log('Hello World!');
         tty.log({
-            test: 'Hello World!',
+            test:   'Hello World!',
             answer: 42,
-            true: true
+            true:   true
         });
     });
 
@@ -29,13 +29,13 @@ describe('fua.core.tty', function () {
     describe('colors', function () {
 
         test.skip('develop', function () {
-            tty.output('colors = ' + tty.colors.depth);
+            tty.output('colors = ' + tty.color.depth);
             const step = 32;
             for (let red = 0; red < 256; red += step) {
                 for (let green = 0; green < 256; green += step) {
                     for (let blue = 0; blue < 256; blue += step) {
                         const text = `(${red}, ${green}, ${blue})`;
-                        tty.output(tty.colors.rgb(red, green, blue, text));
+                        tty.output(tty.color.rgb(red, green, blue, text));
                     }
                 }
             }
@@ -43,7 +43,7 @@ describe('fua.core.tty', function () {
             const grey_step = 4;
             for (let grey = 0; grey < 256; grey += grey_step) {
                 const text = `(${grey}, ${grey}, ${grey})`;
-                tty.output(tty.colors.rgb(grey, grey, grey, text));
+                tty.output(tty.color.rgb(grey, grey, grey, text));
             }
         });
 
@@ -57,21 +57,21 @@ describe('fua.core.tty', function () {
 
     test('log.request/response', async function () {
         const
-            http = require('http'),
+            http   = require('http'),
             server = http.createServer(function (request, response) {
                 tty.log.request(request);
                 response.write('Hello World!');
                 response.end();
             }),
-            PORT = 9090;
+            PORT   = 9090;
 
         await new Promise((resolve) => {
             server.listen(PORT, function () {
                 const request = http.request({
                     hostname: 'localhost',
-                    port: PORT,
-                    path: '/test',
-                    method: 'POST'
+                    port:     PORT,
+                    path:     '/test',
+                    method:   'POST'
                 }, function (response) {
                     tty.log.response(response);
                     resolve();
@@ -88,7 +88,7 @@ describe('fua.core.tty', function () {
 
         test('rows: array of arrays, columns: null', function () {
             const columns = null;
-            const rows = [
+            const rows    = [
                 ['Hello', 'World'],
                 ['Lorem', 'Ipsum']
             ];
@@ -97,7 +97,7 @@ describe('fua.core.tty', function () {
 
         test('rows: array of arrays, columns: array', function () {
             const columns = ['First Name', 'Last Name'];
-            const rows = [
+            const rows    = [
                 ['Simon', 'Petrac'],
                 ['Jörg', 'Langkau']
             ];
@@ -110,7 +110,7 @@ describe('fua.core.tty', function () {
                 1: 'lastName',
                 _: 'index'
             };
-            const rows = [
+            const rows    = [
                 ['Simon', 'Petrac'],
                 ['Jörg', 'Langkau']
             ];
@@ -119,7 +119,7 @@ describe('fua.core.tty', function () {
 
         test('rows: array of objects, columns: null', function () {
             const columns = null;
-            const rows = [
+            const rows    = [
                 {first: 'Test', 2: 'Test'},
                 {first: 'Hello', last: 'World'},
                 {first: 'Lorem', last: 'Ipsum'}
@@ -129,7 +129,7 @@ describe('fua.core.tty', function () {
 
         test('rows: array of objects, columns: array', function () {
             const columns = ['First Name', 'Last Name'];
-            const rows = [
+            const rows    = [
                 {0: 'Hello', 1: 'World'},
                 {0: 'Lorem', 1: 'Ipsum', 2: 'Test'}
             ];
@@ -138,10 +138,10 @@ describe('fua.core.tty', function () {
 
         test('rows: array of objects, columns: object', function () {
             const columns = {
-                _: 'Key',
+                _:    'Key',
                 test: 'Test'
             };
-            const rows = [
+            const rows    = [
                 {test: 'Hello', test2: 'World'},
                 {test: 'Simon'},
                 {test: 'Jörg'}
@@ -151,8 +151,8 @@ describe('fua.core.tty', function () {
 
         test('rows: object of arrays, columns: null', function () {
             const columns = null;
-            const rows = {
-                first: ['Hello', 'World'],
+            const rows    = {
+                first:  ['Hello', 'World'],
                 second: ['Lorem', 'Ipsum']
             };
             tty.log.table(rows, columns, this.test.title);
@@ -160,8 +160,8 @@ describe('fua.core.tty', function () {
 
         test('rows: object of arrays, columns: array', function () {
             const columns = ['First Name', 'Second Name'];
-            const rows = {
-                first: ['Simon', 'Petrac'],
+            const rows    = {
+                first:  ['Simon', 'Petrac'],
                 second: ['Jörg', 'Langkau']
             };
             tty.log.table(rows, columns, this.test.title);
@@ -172,8 +172,8 @@ describe('fua.core.tty', function () {
                 _: 'POS',
                 1: 'NAME'
             };
-            const rows = {
-                first: ['Simon', 'Petrac'],
+            const rows    = {
+                first:  ['Simon', 'Petrac'],
                 second: ['Jörg', 'Langkau']
             };
             tty.log.table(rows, columns, this.test.title);
@@ -181,8 +181,8 @@ describe('fua.core.tty', function () {
 
         test('rows: object of objects, columns: null', function () {
             const columns = null;
-            const rows = {
-                first: {firstName: 'Simon', lastName: 'Petrac'},
+            const rows    = {
+                first:  {firstName: 'Simon', lastName: 'Petrac'},
                 second: {firstName: 'Jörg', lastName: 'Langkau'}
             };
             tty.log.table(rows, columns, this.test.title);
@@ -190,8 +190,8 @@ describe('fua.core.tty', function () {
 
         test('rows: object of objects, columns: array', function () {
             const columns = ['lastName'];
-            const rows = {
-                first: {1: 'Simon', 0: 'Petrac'},
+            const rows    = {
+                first:  {1: 'Simon', 0: 'Petrac'},
                 second: {1: 'Jörg', 0: 'Langkau'}
             };
             tty.log.table(rows, columns, this.test.title);
@@ -199,13 +199,13 @@ describe('fua.core.tty', function () {
 
         test('rows: object of objects, columns: object', function () {
             const columns = {
-                _: 'Key',
+                _:         'Key',
                 firstName: 'First Name',
-                lastName: 'Last Name',
-                test: '[Empty]'
+                lastName:  'Last Name',
+                test:      '[Empty]'
             };
-            const rows = {
-                first: {firstName: 'Simon', lastName: 'Petrac'},
+            const rows    = {
+                first:  {firstName: 'Simon', lastName: 'Petrac'},
                 second: {firstName: 'Jörg', lastName: 'Langkau'}
             };
             tty.log.table(rows, columns, this.test.title);
