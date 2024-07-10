@@ -163,19 +163,31 @@ tty.log.todo = function (message = '') {
 };
 
 /**
- * @param {module:http.IncomingMessage | module:http.ClientRequest} request
+ * @param {module:http.IncomingMessage | module:http.ClientRequest | Request} request
  * @returns {string}
  */
 tty.inspect.request = function (request) {
-    let result = tty.style.bold(request.method) + ' ' + tty.color.cyan(request.url) + ' HTTP/' + request.httpVersion;
-    for (let [key, value] of Object.entries(request.headers)) {
-        result += '\n  ' + tty.color.magenta(key) + ': ' + tty.color.green(value);
+    let result    = tty.style.bold(request.method)
+        + ' ' + tty.color.cyan(request.url)
+        + ' HTTP/' + (request.httpVersion || '');
+    const headers = request.getHeaders
+        ? Object.entries(request.getHeaders())
+        : request.headers
+            ? request.headers.entries
+                ? request.headers.entries()
+                : Object.entries(request.headers)
+            : [];
+    for (let [name, value] of headers) {
+        const values = Array.isArray(value) ? value : [value]
+        for (let header of values) {
+            result += '\n  ' + tty.color.magenta(name) + ': ' + tty.color.green(header);
+        }
     }
     return result;
 };
 
 /**
- * @param {module:http.IncomingMessage | module:http.ClientRequest} request
+ * @param {module:http.IncomingMessage | module:http.ClientRequest | Response} request
  */
 tty.log.request = function (request) {
     const ts = '[' + util.currentTime() + ']', text = tty.inspect.request(request);
@@ -187,9 +199,21 @@ tty.log.request = function (request) {
  * @returns {string}
  */
 tty.inspect.response = function (response) {
-    let result = 'HTTP/' + response.httpVersion + ' ' + tty.style.bold(response.statusCode) + ' ' + tty.style.italic(response.statusMessage);
-    for (let [key, value] of Object.entries(response.headers)) {
-        result += '\n  ' + tty.color.magenta(key) + ': ' + tty.color.green(value);
+    let result    = 'HTTP/' + (response.httpVersion || '')
+        + ' ' + tty.style.bold(response.statusCode || response.status || '')
+        + ' ' + tty.style.italic(response.statusMessage || response.statusText || '');
+    const headers = response.getHeaders
+        ? Object.entries(response.getHeaders())
+        : response.headers
+            ? response.headers.entries
+                ? response.headers.entries()
+                : Object.entries(response.headers)
+            : [];
+    for (let [name, value] of headers) {
+        const values = Array.isArray(value) ? value : [value]
+        for (let header of values) {
+            result += '\n  ' + tty.color.magenta(name) + ': ' + tty.color.green(header);
+        }
     }
     return result;
 };
