@@ -1,5 +1,5 @@
 {
-  "name": "@nrd/fua.core.tty",
+  "name": "@fua/core.tty",
   "version": "1.1.0",
   "description": "",
   "main": "src/tty.js",
@@ -20,8 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@git02.int.nsc.ag:10022/research/fua/core/tty.git"
+    "url": "ssh://git@github.com:nicosResearchAndDevelopment/fua.core.tty.git"
   },
-  "author": "spetrac@nicos-ag.com",
-  "license": "UNLICENSED"
+  "author": "Simon Petrac <pfoerdie@gmail.com>",
+  "license": "MIT"
 }

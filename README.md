@@ -1,1 +1,1 @@
-# @nrd/fua.core.tty
+# @fua/core.tty

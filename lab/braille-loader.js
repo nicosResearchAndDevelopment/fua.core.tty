@@ -1,6 +1,6 @@
 const
-    async       = require('@nrd/fua.core.async'),
-    ts          = require('@nrd/fua.core.ts'),
+    async       = require('@fua/core.async'),
+    ts          = require('@fua/core.ts'),
     ProgressBar = require('./ProgressBar.js'),
     cursor      = require('../src/tty.cursor.js');
 
